@@ -4,6 +4,9 @@
 	"description": "Find related files",
 	"version": "0.0.1",
 	"publisher": "mpasarin",
+	"repository": {
+		"url": "https://github.com/mpasarin/related-files-vscode-extension.git"
+	},
 	"engines": {
 		"vscode": "^1.51.0"
 	},
@@ -39,7 +42,7 @@
 				},
 				"relatedFiles.editedTogether.numberOfCommits": {
 					"type": "number",
-					"default": 10,
+					"default": 30,
 					"description": "Number of commits to look back to find related files"
 				},
 				"relatedFiles.editedTogether.maxFilesPerCommit": {
@@ -47,13 +50,13 @@
 					"default": 100,
 					"description": "Ignore commits when the number of files edited is above this threshold"
 				},
-				"relatedFiles.editedTogether.advanced.heuristics.repeatModifierFactor": {
+				"relatedFiles.editedTogether.heuristics.repeatModifierFactor": {
 					"type": "number",
 					"default": 1.5,
 					"minimum": 1,
 					"description": "Factor that increases heuristics when the file is edited multiple times. Must be >= 1"
 				},
-				"relatedFiles.editedTogether.advanced.heuristics.olderCommitModifierFactor": {
+				"relatedFiles.editedTogether.heuristics.olderCommitModifierFactor": {
 					"type": "number",
 					"default": 0.9,
 					"maximum": 1,
@@ -67,7 +70,7 @@
 				"relatedFiles.similarNames.numberOfSuggestions": {
 					"type": "number",
 					"default": 10,
-					"description": "Number of suggestions to show for edited together files"
+					"description": "Number of suggestions to show for files with similar names"
 				}
 			}
 		}

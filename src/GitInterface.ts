@@ -6,11 +6,13 @@ import { GitExtension } from '../types/git';
 const execFile = util.promisify(child_process.execFile);
 
 function getGitCommand(): string {
-    const vscodeGit = vscode.extensions.getExtension<GitExtension>("vscode.git");
+    try {
+        const vscodeGit = vscode.extensions.getExtension<GitExtension>("vscode.git");
 
-    if (vscodeGit?.exports.enabled) {
-        return vscodeGit.exports.getAPI(1).git.path;
-    }
+        if (vscodeGit?.exports.enabled) {
+            return vscodeGit.exports.getAPI(1).git.path;
+        }
+    } catch (err) { /* no op */ }
 
     return "git";
 }
@@ -26,11 +28,11 @@ export function getLastCommits(path: string, numCommits: number): Promise<string
     const command = getGitCommand();
     const relativePath = vscode.workspace.asRelativePath(path);
     const cwd = vscode.workspace.workspaceFolders![0].uri.fsPath;
-    const args = ['log', '--format=%H', `-n ${numCommits}`,'--',relativePath];
+    const args = ['log', '--format=%H', `-n ${numCommits}`, '--', relativePath];
     return runCommand(command, args, cwd)
-    .then(out => {
-        return out.trim().split('\n');
-    });
+        .then(out => {
+            return out.trim().split('\n');
+        });
 }
 
 /**

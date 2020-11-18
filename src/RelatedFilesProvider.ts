@@ -32,12 +32,14 @@ export class RelatedFilesProvider implements vscode.TreeDataProvider<RelatedFile
     const filePath = vscode.window.activeTextEditor?.document.fileName;
     if (!filePath) { return Promise.resolve([]); }
 
+    const config = vscode.workspace.getConfiguration("relatedFiles");
+
     let results: RelatedFile[] = [];
-    if (vscode.workspace.getConfiguration("relatedFiles.editedTogether.isEnabled")) {
-      results.concat(this.getEditedTogetherResults(filePath));
+    if (config.editedTogether.isEnabled) {
+      results = results.concat(this.getEditedTogetherResults(filePath));
     }
-    if (vscode.workspace.getConfiguration("relatedFiles.similarNames.isEnabled")) {
-      results.concat(this.getSimilarNamedResults(filePath));
+    if (config.similarNames.isEnabled) {
+      results = results.concat(this.getSimilarNamedResults(filePath));
     }
 
     return Promise.resolve(results);
@@ -51,7 +53,6 @@ export class RelatedFilesProvider implements vscode.TreeDataProvider<RelatedFile
 
       getRelatedFiles(filePath)
         .then(relatedFiles => {
-          relatedFiles.splice(0, 1); // Remove the file itself - It's always the one with max weight
           const editedTogether = relatedFiles.map(file => new RelatedFile(file.fileName, file.weight));
           this._editedTogetherResults.set(filePath, editedTogether);
           this.refresh();
@@ -78,8 +79,9 @@ export class RelatedFilesProvider implements vscode.TreeDataProvider<RelatedFile
 
       const excludeArray = [...filesExcludesArray, ...searchExcludesArray];
       const excludeGlob = excludeArray.join(', ');
-
-      vscode.workspace.findFiles(`**/${fileNameWithoutExt}.*`, excludeGlob, 10)
+      const numberOfSuggestions = vscode.workspace.getConfiguration("relatedFiles").similarNames.numberOfSuggestions;
+      
+      vscode.workspace.findFiles(`**/${fileNameWithoutExt}.*`, excludeGlob, numberOfSuggestions)
         .then(urls => urls.map(url => vscode.workspace.asRelativePath(url.fsPath)))
         .then(filePaths => {
           const editedTogehter = filePaths.map(filePath => new RelatedFile(filePath));
