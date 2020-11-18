@@ -1,0 +1,96 @@
+{
+	"name": "related-files",
+	"displayName": "Related files",
+	"description": "Find related files",
+	"version": "0.0.1",
+	"publisher": "mpasarin",
+	"engines": {
+		"vscode": "^1.51.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:related-files.helloWorld",
+		"onView:relatedFiles"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"views": {
+			"explorer": [
+				{
+					"id": "relatedFiles",
+					"name": "Related files"
+				}
+			]
+		},
+		"configuration": {
+			"title": "Related files",
+			"properties": {
+				"relatedFiles.editedTogether.isEnabled": {
+					"type": "boolean",
+					"default": "true",
+					"description": "Enable suggestions based on files edited together"
+				},
+				"relatedFiles.editedTogether.numberOfSuggestions": {
+					"type": "number",
+					"default": 10,
+					"description": "Number of suggestions to show for edited together files"
+				},
+				"relatedFiles.editedTogether.numberOfCommits": {
+					"type": "number",
+					"default": 10,
+					"description": "Number of commits to look back to find related files"
+				},
+				"relatedFiles.editedTogether.maxFilesPerCommit": {
+					"type": "number",
+					"default": 100,
+					"description": "Ignore commits when the number of files edited is above this threshold"
+				},
+				"relatedFiles.editedTogether.advanced.heuristics.repeatModifierFactor": {
+					"type": "number",
+					"default": 1.5,
+					"minimum": 1,
+					"description": "Factor that increases heuristics when the file is edited multiple times. Must be >= 1"
+				},
+				"relatedFiles.editedTogether.advanced.heuristics.olderCommitModifierFactor": {
+					"type": "number",
+					"default": 0.9,
+					"maximum": 1,
+					"description": "Factor that reduces heuristics for older commits. Must be <= 1"
+				},
+				"relatedFiles.similarNames.isEnabled": {
+					"type": "boolean",
+					"default": "true",
+					"description": "Enable suggestions based on files with similar names"
+				},
+				"relatedFiles.similarNames.numberOfSuggestions": {
+					"type": "number",
+					"default": 10,
+					"description": "Number of suggestions to show for edited together files"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.0",
+		"@types/node": "^12.11.7",
+		"@types/vscode": "^1.51.0",
+		"@typescript-eslint/eslint-plugin": "^4.1.1",
+		"@typescript-eslint/parser": "^4.1.1",
+		"eslint": "^7.9.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.1.3",
+		"typescript": "^4.0.2",
+		"vscode-test": "^1.4.0"
+	}
+}
