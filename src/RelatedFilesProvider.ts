@@ -11,7 +11,6 @@ export class RelatedFilesProvider implements vscode.TreeDataProvider<RelatedFile
   private _editedTogetherResults: Map<string, RelatedFile[]> = new Map();
   private _similarNamedResults: Map<string, RelatedFile[]> = new Map();
 
-
   constructor() {
     vscode.commands.registerCommand(openFileCommandId, (fileName) => {
       const filePath = path.join(vscode.workspace.workspaceFolders![0].uri.fsPath, fileName);
@@ -35,23 +34,24 @@ export class RelatedFilesProvider implements vscode.TreeDataProvider<RelatedFile
     const config = vscode.workspace.getConfiguration("relatedFiles");
 
     let results: RelatedFile[] = [];
-    if (config.editedTogether.isEnabled) {
-      results = results.concat(this.getEditedTogetherResults(filePath));
+    if (config.editedTogether.enabled) {
+      const numSuggestions = config.editedTogether.numberOfSuggestions;
+      results = results.concat(this.getEditedTogetherResults(filePath, numSuggestions));
     }
-    if (config.similarNames.isEnabled) {
-      results = results.concat(this.getSimilarNamedResults(filePath));
+    if (config.similarNames.enabled) {
+      const numSuggestions = config.similarNames.numberOfSuggestions;
+      results = results.concat(this.getSimilarNamedResults(filePath, numSuggestions));
     }
 
     return Promise.resolve(results);
   }
 
-  private getEditedTogetherResults(filePath: string): RelatedFile[] {
+  private getEditedTogetherResults(filePath: string, numSuggestions: number): RelatedFile[] {
     if (this._editedTogetherResults.has(filePath)) {
       return this._editedTogetherResults.get(filePath)!;
     } else {
       this._editedTogetherResults.set(filePath, []);
-
-      getRelatedFiles(filePath)
+      getRelatedFiles(filePath, numSuggestions)
         .then(relatedFiles => {
           const editedTogether = relatedFiles.map(file => new RelatedFile(file.fileName, file.weight));
           this._editedTogetherResults.set(filePath, editedTogether);
@@ -62,7 +62,7 @@ export class RelatedFilesProvider implements vscode.TreeDataProvider<RelatedFile
     }
   }
 
-  private getSimilarNamedResults(filePath: string): RelatedFile[] {
+  private getSimilarNamedResults(filePath: string, numSuggestions: number): RelatedFile[] {
     if (this._similarNamedResults.has(filePath)) {
       return this._similarNamedResults.get(filePath)!;
     } else {
@@ -79,13 +79,19 @@ export class RelatedFilesProvider implements vscode.TreeDataProvider<RelatedFile
 
       const excludeArray = [...filesExcludesArray, ...searchExcludesArray];
       const excludeGlob = excludeArray.join(', ');
-      const numberOfSuggestions = vscode.workspace.getConfiguration("relatedFiles").similarNames.numberOfSuggestions;
+      const searchTimeoutInMs = vscode.workspace.getConfiguration("relatedFiles").similarNames.searchTimeout * 1000;
+
+      const cancellationTokenSource = new vscode.CancellationTokenSource();
+      const token = cancellationTokenSource.token;
+
+      const timeoutId = setTimeout(() => cancellationTokenSource.cancel(), searchTimeoutInMs)
       
-      vscode.workspace.findFiles(`**/${fileNameWithoutExt}.*`, excludeGlob, numberOfSuggestions)
+      vscode.workspace.findFiles(`**/${fileNameWithoutExt}.*`, excludeGlob, numSuggestions, token)
         .then(urls => urls.map(url => vscode.workspace.asRelativePath(url.fsPath)))
         .then(filePaths => {
-          const editedTogehter = filePaths.map(filePath => new RelatedFile(filePath));
-          this._similarNamedResults.set(filePath, editedTogehter);
+          clearTimeout(timeoutId);
+          const editedTogether = filePaths.map(filePath => new RelatedFile(filePath));
+          this._similarNamedResults.set(filePath, editedTogether);
           this.refresh();
         });
 

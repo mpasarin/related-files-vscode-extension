@@ -1,7 +1,7 @@
 {
 	"name": "related-files",
 	"displayName": "Related files",
-	"description": "Find related files",
+	"description": "Find related files from same commits and similar names",
 	"version": "0.0.1",
 	"publisher": "mpasarin",
 	"repository": {
@@ -14,7 +14,6 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:related-files.helloWorld",
 		"onView:relatedFiles"
 	],
 	"main": "./out/extension.js",
@@ -30,10 +29,10 @@
 		"configuration": {
 			"title": "Related files",
 			"properties": {
-				"relatedFiles.editedTogether.isEnabled": {
+				"relatedFiles.editedTogether.enabled": {
 					"type": "boolean",
 					"default": "true",
-					"description": "Enable suggestions based on files edited together"
+					"description": "Enables suggestions based on files edited together"
 				},
 				"relatedFiles.editedTogether.numberOfSuggestions": {
 					"type": "number",
@@ -48,29 +47,22 @@
 				"relatedFiles.editedTogether.maxFilesPerCommit": {
 					"type": "number",
 					"default": 100,
-					"description": "Ignore commits when the number of files edited is above this threshold"
+					"description": "Ignore commits when the number of files edited is above this threshold. Useful to ignore styling changes or moving code."
 				},
-				"relatedFiles.editedTogether.heuristics.repeatModifierFactor": {
-					"type": "number",
-					"default": 1.5,
-					"minimum": 1,
-					"description": "Factor that increases heuristics when the file is edited multiple times. Must be >= 1"
-				},
-				"relatedFiles.editedTogether.heuristics.olderCommitModifierFactor": {
-					"type": "number",
-					"default": 0.9,
-					"maximum": 1,
-					"description": "Factor that reduces heuristics for older commits. Must be <= 1"
-				},
-				"relatedFiles.similarNames.isEnabled": {
+				"relatedFiles.similarNames.enabled": {
 					"type": "boolean",
 					"default": "true",
-					"description": "Enable suggestions based on files with similar names"
+					"description": "Enables suggestions based on files with similar names"
 				},
 				"relatedFiles.similarNames.numberOfSuggestions": {
 					"type": "number",
 					"default": 10,
 					"description": "Number of suggestions to show for files with similar names"
+				},
+				"relatedFiles.similarNames.searchTimeout": {
+					"type": "number",
+					"default": 10,
+					"description": "Timeout in seconds to search for files with similar names. In big repositories this can be an expensive operation."
 				}
 			}
 		}
